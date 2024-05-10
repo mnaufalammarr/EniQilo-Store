@@ -1,5 +1,6 @@
 @url = http://localhost:8080/v1
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUzODI2NTksInN1YiI6MX0.LQb4xjl8ypEo8P-kbJH_oXFVygdgpXM0_VBvjQ-0Rts
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUzODc0MTQsInN1YiI6MX0.E4a1xzCtWC-N8NfdF3yeWrTpp1CrMLCYLZBWa_ZInHw
+### AUTH
 # REGISTER
 POST {{url}}/staff/register
 Content-Type: application/json
@@ -17,4 +18,20 @@ Content-Type: application/json
 {
 	"phoneNumber": "+628123123123",
 	"password": "test1234"
+}
+### PRODUCT
+#CREATE
+POST {{url}}/product/create
+Content-Type: application/json
+
+{
+	"name": "T-Shirt",
+	"sku": "TS123",
+	"category": "Clothing",
+	"imageUrl": "https://example.com/image.jpg",
+	"notes": "Comfortable cotton material, available in various sizes and colors.",
+	"price": 15,
+	"stock": 50,
+	"location": "Store A",
+	"isAvailable": true
 }

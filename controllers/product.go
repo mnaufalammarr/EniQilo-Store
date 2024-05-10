@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -33,14 +32,19 @@ func (controller *productController) Create(c echo.Context) error {
 				errorMessage := fmt.Sprintf("Error on field: %s, condition: %s", e.Field(), e.ActualTag())
 				errorMessages = append(errorMessages, errorMessage)
 			}
-			c.JSON(http.StatusBadRequest, gin.H{
-				"errors": errorMessages,
+			c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Phone must be start with +",
 			})
 			return nil
 		case *json.UnmarshalTypeError:
-			c.JSON(http.StatusBadRequest, gin.H{
-				"errors": err.Error(),
-			})
+			c.JSON(
+				http.StatusBadRequest,
+				entities.ErrorResponse{
+					Status:  false,
+					Message: err.Error(),
+				},
+			)
 			return nil
 		}
 	}
@@ -48,15 +52,22 @@ func (controller *productController) Create(c echo.Context) error {
 	product, err := controller.productService.Create(productRequest)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"errors": err,
-		})
+		c.JSON(
+			http.StatusBadRequest,
+			entities.ErrorResponse{
+				Status:  false,
+				Message: err.Error(),
+			},
+		)
 		return nil
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "success",
-		"data":    product,
-	})
+	c.JSON(
+		http.StatusCreated,
+		entities.SuccessResponse{
+			Message: "success",
+			Data:    product,
+		},
+	)
 	return nil
 }

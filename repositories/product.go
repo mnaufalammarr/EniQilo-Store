@@ -25,7 +25,7 @@ func (r *productRepository) Create(product entities.ProductRequest) (entities.Pr
 	var productResponse entities.ProductResponse
 
 	// Execute the INSERT statement
-	err := r.db.QueryRow(context.Background(), "INSERT INTO products (name, sku, category, image_url, note, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, created_at;",
+	err := r.db.QueryRow(context.Background(), "INSERT INTO products (name, sku, category, image_url, note, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at;",
 		product.Name, product.SKU, product.Category, product.ImageUrl, product.Note, product.Price, product.Stock, product.Location, product.IsAvailable).Scan(&productResponse.ID, &productResponse.CreatedAt)
 	if err != nil {
 		return entities.ProductResponse{}, err

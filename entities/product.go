@@ -28,7 +28,7 @@ type ProductRequest struct {
 	Name        string   `json:"name" validate:"required"`
 	SKU         string   `json:"sku" validate:"required"`
 	Category    Category `json:"category" validate:"required"`
-	ImageUrl    string   `json:"image_url" validate:"required"`
+	ImageUrl    string   `json:"imageUrl" validate:"required"`
 	Note        string   `json:"notes" validate:"required"`
 	Price       int      `json:"price" validate:"required"`
 	Stock       int      `json:"stock" validate:"required"`

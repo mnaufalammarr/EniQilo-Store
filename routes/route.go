@@ -50,6 +50,7 @@ func (r *Routes) Mount() {
 
 	v1.MountStaff()
 	v1.MountCustomer()
+	v1.MountProduct()
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
