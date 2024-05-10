@@ -1,6 +1,8 @@
 package entities
 
 type Product struct {
+	Id int `json:"id"`
+
 	Name        string   `json:"name" validate:"required"`
 	SKU         string   `json:"sku" validate:"required"`
 	Category    Category `json:"category" validate:"required"`
@@ -10,7 +12,6 @@ type Product struct {
 	Stock       int      `json:"stock" validate:"required"`
 	Location    string   `json:"location" validate:"required"`
 	IsAvailable bool     `json:"is_available" validate:"required"`
-	BaseModel
 }
 
 type Category string
