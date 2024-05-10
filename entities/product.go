@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type Product struct {
 	Id int `json:"id"`
 
@@ -12,6 +14,7 @@ type Product struct {
 	Stock       int      `json:"stock" validate:"required"`
 	Location    string   `json:"location" validate:"required"`
 	IsAvailable bool     `json:"is_available" validate:"required"`
+	BaseModel
 }
 
 type Category string
@@ -20,3 +23,20 @@ const (
 	Cloth Category = "cloth"
 	Jeans Category = "jeans"
 )
+
+type ProductRequest struct {
+	Name        string   `json:"name" validate:"required"`
+	SKU         string   `json:"sku" validate:"required"`
+	Category    Category `json:"category" validate:"required"`
+	ImageUrl    string   `json:"image_url" validate:"required"`
+	Note        string   `json:"notes" validate:"required"`
+	Price       int      `json:"price" validate:"required"`
+	Stock       int      `json:"stock" validate:"required"`
+	Location    string   `json:"location" validate:"required"`
+	IsAvailable bool     `json:"isAvailable" validate:"required"`
+}
+
+type ProductResponse struct {
+	ID        int       `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+}

@@ -1,0 +1,20 @@
+@url = http://localhost:8080/v1
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUzODI2NTksInN1YiI6MX0.LQb4xjl8ypEo8P-kbJH_oXFVygdgpXM0_VBvjQ-0Rts
+# REGISTER
+POST {{url}}/staff/register
+Content-Type: application/json
+
+{
+	"phoneNumber": "+628123123123",
+	"name": "budi satu",
+	"password": "test1234"
+}
+###
+#LOGIN
+POST {{url}}/staff/login
+Content-Type: application/json
+
+{
+	"phoneNumber": "+628123123123",
+	"password": "test1234"
+}
