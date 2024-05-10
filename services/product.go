@@ -8,6 +8,8 @@ import (
 
 type ProductService interface {
 	Create(productRequest entities.ProductRequest) (entities.ProductResponse, error)
+	FindByID(id string) (entities.Product, error)
+	Update(id string, productRequest entities.ProductRequest) error
 }
 
 type productService struct {
@@ -25,4 +27,17 @@ func (s *productService) Create(productRequest entities.ProductRequest) (entitie
 	fmt.Println("newProductErr", err)
 
 	return product, err
+}
+
+func (s *productService) FindByID(id string) (entities.Product, error) {
+	return s.productRepository.FindByID(id)
+}
+
+func (s *productService) Update(id string, productRequest entities.ProductRequest) error {
+	err := s.productRepository.Update(id, productRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

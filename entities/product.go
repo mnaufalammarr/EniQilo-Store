@@ -7,7 +7,7 @@ import (
 )
 
 type Product struct {
-	Id int `json:"id"`
+	ID int `json:"id"`
 
 	Name        string   `json:"name" validate:"required"`
 	SKU         string   `json:"sku" validate:"required"`

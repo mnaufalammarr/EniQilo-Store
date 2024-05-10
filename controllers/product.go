@@ -71,3 +71,66 @@ func (controller *productController) Create(c echo.Context) error {
 	)
 	return nil
 }
+
+func (controller *productController) FindByID(c echo.Context) error {
+	id := c.Param("id")
+
+	product, err := controller.productService.FindByID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, entities.ErrorResponse{
+			Status:  false,
+			Message: "Product not found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "success",
+		Data:    product,
+	})
+}
+
+func (controller *productController) Update(c echo.Context) error {
+	id := c.Param("id")
+
+	_, err := controller.productService.FindByID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, entities.ErrorResponse{
+			Status:  false,
+			Message: "Product not found",
+		})
+	}
+
+	var productRequest entities.ProductRequest
+	// userID, _ := utils.GetUserIDFromJWTClaims(c)
+	if err := c.Bind(&productRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: "Invalid request body",
+		})
+	}
+
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(productRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
+	}
+
+	err = controller.productService.Update(id, productRequest)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			Status:  false,
+			Message: "Failed to update product",
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "Product updated successfully",
+	})
+}

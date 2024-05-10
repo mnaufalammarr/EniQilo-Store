@@ -35,3 +35,22 @@ Content-Type: application/json
 	"location": "Store A",
 	"isAvailable": true
 }
+###
+#GETBYID
+GET {{url}}/product/30
+###
+#UPDATE
+PUT {{url}}/product/1
+Content-Type: application/json
+
+{
+	"name": "11234",
+	"sku": "TS123",
+	"category": "Beverages",
+	"imageUrl": "https://example.com/image.jpg",
+	"notes": "Comfortable cotton material, available in various sizes and colors.",
+	"price": 15,
+	"stock": 50,
+	"location": "Store A",
+	"isAvailable": true
+}
