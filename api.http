@@ -20,6 +20,9 @@ Content-Type: application/json
 	"password": "test1234"
 }
 ### PRODUCT
+#GETALL
+GET {{url}}/product?limit=10&offset=0&name=3&isAvailable=true&category=Clothing&price=desc&createdAt=desc&inStock=true
+###
 #CREATE
 POST {{url}}/product/create
 Content-Type: application/json

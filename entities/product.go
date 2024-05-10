@@ -58,3 +58,16 @@ type ProductResponse struct {
 	ID        int       `json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+type ProductQueryParams struct {
+	ID          string
+	Name        string
+	SKU         string
+	Category    string
+	IsAvailable *bool
+	InStock     *bool
+	Price       string
+	CreatedAt   string
+	Limit       int
+	Offset      int
+}

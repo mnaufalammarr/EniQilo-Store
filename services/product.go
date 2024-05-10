@@ -7,6 +7,7 @@ import (
 )
 
 type ProductService interface {
+	FindAll(params entities.ProductQueryParams) ([]entities.Product, error)
 	Create(productRequest entities.ProductRequest) (entities.ProductResponse, error)
 	FindByID(id string) (entities.Product, error)
 	Update(id string, productRequest entities.ProductRequest) error
@@ -45,4 +46,8 @@ func (s *productService) Update(id string, productRequest entities.ProductReques
 
 func (s *productService) Delete(id string) error {
 	return s.productRepository.Delete(id)
+}
+
+func (s *productService) FindAll(params entities.ProductQueryParams) ([]entities.Product, error) {
+	return s.productRepository.FindAll(params)
 }

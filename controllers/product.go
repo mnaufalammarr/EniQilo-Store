@@ -5,6 +5,7 @@ import (
 	"EniQilo/services"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -25,6 +26,120 @@ func NewProductController(productService services.ProductService) *productContro
 		productService: productService,
 		validator:      validate,
 	}
+}
+
+func (controller *productController) FindAll(c echo.Context) error {
+	params := entities.ProductQueryParams{}
+
+	limitStr := c.QueryParam("limit")
+	if limitStr != "" {
+		limit, err := strconv.Atoi(limitStr)
+		if err == nil && limit > 0 {
+			params.Limit = limit
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid limit parameter",
+			})
+		}
+	} else {
+		params.Limit = 5
+	}
+
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset, err := strconv.Atoi(offsetStr)
+		if err == nil && offset >= 0 {
+			params.Offset = offset
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid offset parameter",
+			})
+		}
+	} else {
+		params.Offset = 0
+	}
+
+	if id := c.QueryParam("id"); id != "" {
+		params.ID = id
+	}
+
+	if name := c.QueryParam("name"); name != "" {
+		params.Name = name
+	}
+
+	if sku := c.QueryParam("sku"); sku != "" {
+		params.SKU = sku
+	}
+
+	if category := c.QueryParam("category"); category != "" {
+		if !isValidCategory(category) {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid category parameter",
+			})
+		}
+		params.Category = category
+	}
+
+	if isAvailable := c.QueryParam("isAvailable"); isAvailable != "" {
+		isAvail, err := strconv.ParseBool(isAvailable)
+		if err == nil {
+			params.IsAvailable = &isAvail
+		}
+	}
+
+	if inStock := c.QueryParam("inStock"); inStock != "" {
+		inStk, err := strconv.ParseBool(inStock)
+		if err == nil {
+			params.InStock = &inStk
+		}
+	}
+
+	if price := c.QueryParam("price"); price != "" {
+		if price != "asc" && price != "desc" {
+			// return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			// 	Status:  false,
+			// 	Message: "Invalid price parameter",
+			// })
+		} else {
+			params.Price = price
+		}
+	}
+
+	if createdAt := c.QueryParam("createdAt"); createdAt != "" {
+		if createdAt != "asc" && createdAt != "desc" {
+			// return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			// 	Status:  false,
+			// 	Message: "Invalid createdAt parameter",
+			// })
+			// params.CreatedAt = createdAt
+		} else {
+			params.CreatedAt = createdAt
+		}
+	}
+
+	// Call service to find products
+	products, err := controller.productService.FindAll(params)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			Status:  false,
+			Message: "Failed to fetch products",
+		})
+	}
+
+	if products == nil {
+		return c.JSON(http.StatusOK, entities.SuccessResponse{
+			Message: "success",
+			Data:    []entities.Product{},
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "success",
+		Data:    products,
+	})
 }
 
 func (controller *productController) Create(c echo.Context) error {
@@ -157,4 +272,13 @@ func (controller *productController) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, entities.SuccessResponse{
 		Message: "Product deleted successfully",
 	})
+}
+
+func isValidCategory(category string) bool {
+	switch category {
+	case "Clothing", "Accessories", "Footwear", "Beverages":
+		return true
+	default:
+		return false
+	}
 }
