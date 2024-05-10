@@ -25,9 +25,9 @@ POST {{url}}/product/create
 Content-Type: application/json
 
 {
-	"name": "T-Shirt",
+	"name": "1123",
 	"sku": "TS123",
-	"category": "Clothing",
+	"category": "Beverages",
 	"imageUrl": "https://example.com/image.jpg",
 	"notes": "Comfortable cotton material, available in various sizes and colors.",
 	"price": 15,

@@ -3,50 +3,50 @@ package controllers
 import (
 	"EniQilo/entities"
 	"EniQilo/services"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type productController struct {
 	productService services.ProductService
+	validator      *validator.Validate
 }
 
-func NewProductController(service services.ProductService) *productController {
-	return &productController{service}
+func NewProductController(productService services.ProductService) *productController {
+	validate := validator.New()
+	validate.RegisterValidation("validCategory", func(fl validator.FieldLevel) bool {
+		return fl.Field().String() == "Clothing" || fl.Field().String() == "Accessories" || fl.Field().String() == "Footwear" || fl.Field().String() == "Beverages"
+	})
+
+	return &productController{
+		productService: productService,
+		validator:      validate,
+	}
 }
 
 func (controller *productController) Create(c echo.Context) error {
 	var productRequest entities.ProductRequest
 	// userID, _ := utils.GetUserIDFromJWTClaims(c)
-	err := c.Bind(&productRequest)
+	if err := c.Bind(&productRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: "Invalid request body",
+		})
+	}
 
-	if err != nil {
-		switch err.(type) {
-		case validator.ValidationErrors:
-			errorMessages := []string{}
-			for _, e := range err.(validator.ValidationErrors) {
-				errorMessage := fmt.Sprintf("Error on field: %s, condition: %s", e.Field(), e.ActualTag())
-				errorMessages = append(errorMessages, errorMessage)
-			}
-			c.JSON(http.StatusBadRequest, entities.ErrorResponse{
-				Status:  false,
-				Message: "Phone must be start with +",
-			})
-			return nil
-		case *json.UnmarshalTypeError:
-			c.JSON(
-				http.StatusBadRequest,
-				entities.ErrorResponse{
-					Status:  false,
-					Message: err.Error(),
-				},
-			)
-			return nil
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(productRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
 		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
 	}
 
 	product, err := controller.productService.Create(productRequest)
