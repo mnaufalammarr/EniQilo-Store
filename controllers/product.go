@@ -134,3 +134,27 @@ func (controller *productController) Update(c echo.Context) error {
 		Message: "Product updated successfully",
 	})
 }
+
+func (controller *productController) Delete(c echo.Context) error {
+	id := c.Param("id")
+
+	_, err := controller.productService.FindByID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, entities.ErrorResponse{
+			Status:  false,
+			Message: "Product not found",
+		})
+	}
+
+	err = controller.productService.Delete(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			Status:  false,
+			Message: "Failed to delete product",
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "Product deleted successfully",
+	})
+}

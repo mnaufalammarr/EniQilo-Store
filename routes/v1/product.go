@@ -17,4 +17,5 @@ func (i *V1Routes) MountProduct() {
 	g.POST("/create", productController.Create)
 	g.GET("/:id", productController.FindByID)
 	g.PUT("/:id", productController.Update)
+	g.DELETE("/:id", productController.Delete)
 }

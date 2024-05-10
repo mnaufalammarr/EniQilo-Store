@@ -10,6 +10,7 @@ type ProductService interface {
 	Create(productRequest entities.ProductRequest) (entities.ProductResponse, error)
 	FindByID(id string) (entities.Product, error)
 	Update(id string, productRequest entities.ProductRequest) error
+	Delete(id string) error
 }
 
 type productService struct {
@@ -40,4 +41,8 @@ func (s *productService) Update(id string, productRequest entities.ProductReques
 	}
 
 	return nil
+}
+
+func (s *productService) Delete(id string) error {
+	return s.productRepository.Delete(id)
 }

@@ -11,6 +11,7 @@ type ProductRepository interface {
 	Create(product entities.ProductRequest) (entities.ProductResponse, error)
 	FindByID(id string) (entities.Product, error)
 	Update(id string, product entities.ProductRequest) error
+	Delete(id string) error
 }
 
 type productRepository struct {
@@ -50,6 +51,14 @@ func (r *productRepository) FindByID(id string) (entities.Product, error) {
 func (r *productRepository) Update(id string, product entities.ProductRequest) error {
 	_, err := r.db.Exec(context.Background(), "UPDATE products SET name = $1, sku = $2, category = $3, image_url = $4, note = $5, price = $6, stock = $7, location = $8, is_available = $9, updated_at = CURRENT_TIMESTAMP WHERE id = $10",
 		product.Name, product.SKU, product.Category, product.ImageUrl, product.Note, product.Price, product.Stock, product.Location, product.IsAvailable, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *productRepository) Delete(id string) error {
+	_, err := r.db.Exec(context.Background(), "DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		return err
 	}

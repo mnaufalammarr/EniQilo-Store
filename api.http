@@ -54,3 +54,6 @@ Content-Type: application/json
 	"location": "Store A",
 	"isAvailable": true
 }
+###
+#DELETE
+DELETE {{url}}/product/2
