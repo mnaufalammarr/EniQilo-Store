@@ -56,7 +56,7 @@ func (s *staffService) Create(signupRequest entities.SignUpRequest) (entities.St
 	fmt.Println("newUser", newUser)
 	fmt.Println("newUserErr", err)
 
-	staffRequest := entities.StaffRequast{
+	staffRequest := entities.StaffRequest{
 		UserId:   newUser,
 		Password: string(hash),
 	}
@@ -69,6 +69,7 @@ func (s *staffService) Create(signupRequest entities.SignUpRequest) (entities.St
 
 	staffNew := entities.Staff{
 		UserID: entities.User{
+			Id:    newUser,
 			Name:  userRequest.Name,
 			Phone: userRequest.Phone,
 			Role:  userRequest.Role,
@@ -108,7 +109,7 @@ func (s *staffService) Login(loginRequest entities.SignInRequest) (string, error
 	//compare password
 	err = bcrypt.CompareHashAndPassword([]byte(staff.Password), []byte(loginRequest.Password))
 
-	fmt.Println("errlogin", err.Error())
+	//fmt.Println("errlogin", err.Error())
 	if err != nil {
 		return "", err
 	}

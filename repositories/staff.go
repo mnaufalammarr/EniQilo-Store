@@ -10,7 +10,7 @@ import (
 )
 
 type StaffRepository interface {
-	Create(staff entities.StaffRequast) (entities.Staff, error)
+	Create(staff entities.StaffRequest) (entities.Staff, error)
 	FindById(id int) (entities.Staff, error)
 	FindByUserId(id int) (entities.Staff, error)
 }
@@ -23,7 +23,7 @@ func NewStaffRepository(db *pgxpool.Pool) *staffRepository {
 	return &staffRepository{db}
 }
 
-func (r *staffRepository) Create(staff entities.StaffRequast) (entities.Staff, error) {
+func (r *staffRepository) Create(staff entities.StaffRequest) (entities.Staff, error) {
 	fmt.Print("stafId", staff.UserId)
 	_, err := r.db.Exec(context.Background(), "INSERT INTO auths (user_id, password) VALUES ($1, $2)", staff.UserId, staff.Password)
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *staffRepository) Create(staff entities.StaffRequast) (entities.Staff, e
 
 func (r *staffRepository) FindById(id int) (entities.Staff, error) {
 	var staff entities.Staff
-	err := r.db.QueryRow(context.Background(), "SELECT id,pasword FROM auths WHERE id = $1", id).Scan(&staff.Id, &staff.Password)
+	err := r.db.QueryRow(context.Background(), "SELECT id,user_id, password FROM auths WHERE id = $1", id).Scan(&staff.Id, &staff.UserID.Id, &staff.Password)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

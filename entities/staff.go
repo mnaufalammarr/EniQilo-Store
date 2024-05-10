@@ -6,7 +6,7 @@ type Staff struct {
 	Password string `json:"password"`
 }
 
-type StaffRequast struct {
+type StaffRequest struct {
 	UserId   int    `json:"userId"`
 	Password string `json:"password"`
 }

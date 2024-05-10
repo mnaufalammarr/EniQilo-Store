@@ -70,6 +70,7 @@ func (controller *staffController) Signup(c echo.Context) error {
 
 	if utils.ValidatePhoneStartsWithPlus(signupRequest.Phone) {
 		staff, err := controller.staffService.Create(signupRequest)
+		fmt.Println("id: ", staff.UserID.Id)
 		if err != nil {
 			if err.Error() == "Phone ALREADY EXIST" {
 
@@ -89,7 +90,7 @@ func (controller *staffController) Signup(c echo.Context) error {
 
 		loginRequest := entities.SignInRequest{
 			Phone:    staff.UserID.Phone,
-			Password: staff.Password,
+			Password: signupRequest.Password,
 		}
 
 		tokenString, err := controller.staffService.Login(loginRequest)
@@ -180,8 +181,11 @@ func (controller *staffController) SignIn(c echo.Context) error {
 
 		}
 		userId, _ := utils.GetUserIDFromJWT(tokenString)
-		user, err := controller.userService.FindById(userId)
-
+		staff, err := controller.staffService.FindByID(userId)
+		user, err := controller.userService.FindById(staff.UserID.Id)
+		fmt.Println("userid", userId)
+		fmt.Println("staff", staff)
+		fmt.Println("user", err)
 		c.JSON(http.StatusCreated, entities.SuccessResponse{
 			Message: "User registered successfully",
 			Data: map[string]string{
