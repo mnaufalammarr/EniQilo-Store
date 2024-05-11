@@ -16,10 +16,12 @@ import (
 
 type userController struct {
 	userService services.UserService
+	validator   *validator.Validate
 }
 
 func NewUserController(service services.UserService) *userController {
-	return &userController{service}
+	validate := validator.New()
+	return &userController{service, validate}
 }
 
 func (controller *userController) Create(c echo.Context) error {
@@ -67,6 +69,18 @@ func (controller *userController) Create(c echo.Context) error {
 		}
 	}
 
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(userRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
+	}
+
 	if !utils.ValidatePhoneStartsWithPlus(userRequest.Phone) {
 		c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 			Status:  false,
@@ -112,4 +126,70 @@ func (controller *userController) Create(c echo.Context) error {
 		return nil
 	}
 	return nil
+}
+
+func (controller *userController) GetAll(c echo.Context) error {
+	params := entities.UserQueryParams{}
+
+	limitStr := c.QueryParam("limit")
+	if limitStr != "" {
+		limit, err := strconv.Atoi(limitStr)
+		if err == nil && limit > 0 {
+			params.Limit = limit
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid limit parameter",
+			})
+		}
+	} else {
+		params.Limit = 5
+	}
+
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset, err := strconv.Atoi(offsetStr)
+		if err == nil && offset >= 0 {
+			params.Offset = offset
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid offset parameter",
+			})
+		}
+	} else {
+		params.Offset = 0
+	}
+
+	if id := c.QueryParam("id"); id != "" {
+		params.ID = id
+	}
+
+	if name := c.QueryParam("name"); name != "" {
+		params.Name = name
+	}
+
+	if phoneNumber := c.QueryParam("phoneNumber"); phoneNumber != "" {
+		params.PhoneNumber = phoneNumber
+	}
+
+	users, err := controller.userService.FindAll(params)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			Status:  false,
+			Message: "Failed to fetch users",
+		})
+	}
+
+	if users == nil {
+		return c.JSON(http.StatusOK, entities.SuccessResponse{
+			Message: "success",
+			Data:    []entities.User{},
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "success",
+		Data:    users,
+	})
 }

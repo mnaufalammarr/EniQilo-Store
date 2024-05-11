@@ -5,13 +5,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"strconv"
 )
 
 type UserRepository interface {
-	FindAll(filterParams map[string]interface{}) ([]entities.UserResponse, error)
+	FindAll(filterParams entities.UserQueryParams, isCustomer bool) ([]entities.UserResponse, error)
 	Create(user entities.User) (entities.User, error)
 	FindByPhone(phone string) (entities.User, error)
 	PhoneIsExist(phone string) bool
@@ -104,46 +106,39 @@ func (r *userRepository) FindById(id int) (entities.User, error) {
 
 	return user, nil
 }
-func (r *userRepository) FindAll(filterParams map[string]interface{}) ([]entities.UserResponse, error) {
-	query := "SELECT id, name,phone_number  FROM users WHERE 1=1"
-	var args []interface{}
-	fmt.Println(args...)
+func (r *userRepository) FindAll(filterParams entities.UserQueryParams, isCustomer bool) ([]entities.UserResponse, error) {
+	query := "SELECT id, name, phone_number FROM users WHERE 1=1"
 	num := 1
 
-	if userId, ok := filterParams["id"].(string); ok && userId != "" {
-		query += " AND id = $" + strconv.Itoa(num)
-		num++
-		args = append(args, userId)
+	if isCustomer {
+		query += " AND role = false "
 	}
 
-	if name, ok := filterParams["name"].(string); ok && name != "" {
-		query += " AND name ILIKE '%%$" + strconv.Itoa(num) + "%%'"
-		args = append(args, name)
-		num++
+	// Filter by ID
+	if filterParams.ID != "" {
+		query += "AND id = '" + filterParams.ID + "' "
 	}
 
-	if phone, ok := filterParams["phoneNumber"].(string); ok && phone != "" {
-		query += " AND phone_number ILIKE '$" + strconv.Itoa(num) + "%%'"
-		args = append(args, phone)
-		num++
+	if filterParams.Name != "" {
+		query += " AND LOWER(name) LIKE '%" + strings.ToLower(filterParams.Name) + "%' "
 	}
 
-	if search, ok := filterParams["search"].(string); ok && search != "" {
-		query += " AND name ILIKE '%%$" + strconv.Itoa(num) + "%%'"
+	if filterParams.PhoneNumber != "" {
+		query += " AND phone_number LIKE '+" + filterParams.PhoneNumber + "%'"
 		num++
 	}
 
-	query += (" ORDER BY id DESC ")
+	// query += (" ORDER BY id DESC ")
 
-	if limit, ok := filterParams["limit"].(int); ok && limit > 0 {
-		query += " LIMIT " + strconv.Itoa(limit)
+	if filterParams.Limit > 0 {
+		query += " LIMIT " + strconv.Itoa(filterParams.Limit)
 	}
 
-	if offset, ok := filterParams["offset"].(int); ok && offset >= 0 {
-		query += " OFFSET  " + strconv.Itoa(offset)
+	if filterParams.Offset >= 0 {
+		query += " OFFSET  " + strconv.Itoa(filterParams.Offset)
 	}
 	fmt.Println(query)
-	rows, err := r.db.Query(context.Background(), query, args...)
+	rows, err := r.db.Query(context.Background(), query)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
