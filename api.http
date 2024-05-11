@@ -1,5 +1,5 @@
 @url = http://localhost:8080/v1
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTUzODc0MTQsInN1YiI6MX0.E4a1xzCtWC-N8NfdF3yeWrTpp1CrMLCYLZBWa_ZInHw
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU0NjEyMjcsInN1YiI6MX0.XMN-OZ6hxdRmiTrDwHYcT_4CyHgSmaH9neMZEmOCZvo
 ### AUTH
 # REGISTER
 POST {{url}}/staff/register
@@ -24,14 +24,15 @@ Content-Type: application/json
 GET {{url}}/product?limit=10&offset=0&name=3&isAvailable=true&category=Clothing&price=desc&createdAt=desc&inStock=true
 ###
 #CREATE
-POST {{url}}/product/create
+POST {{url}}/product
 Content-Type: application/json
+Authorization: {{token}}
 
 {
 	"name": "1123",
 	"sku": "TS123",
 	"category": "Beverages",
-	"imageUrl": "https://example.com/image.jpg",
+	"imageUrl": "http://test.net.aaa/123",
 	"notes": "Comfortable cotton material, available in various sizes and colors.",
 	"price": 15,
 	"stock": 50,
