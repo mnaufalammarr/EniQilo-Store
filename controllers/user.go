@@ -6,10 +6,11 @@ import (
 	"EniQilo/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"gopkg.in/go-playground/validator.v9"
 	"io"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type userController struct {
@@ -77,7 +78,7 @@ func (controller *userController) Create(c echo.Context) error {
 		if err != nil {
 			if err.Error() == "User not found" {
 				if exist.Role == false {
-					c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+					c.JSON(http.StatusConflict, entities.ErrorResponse{
 						Status:  false,
 						Message: "Phone has been registered",
 					})

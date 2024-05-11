@@ -15,6 +15,7 @@ func (i *V1Routes) MountProduct() {
 	productController := controllers.NewProductController(productService)
 
 	g.GET("", productController.FindAll)
+	g.GET("/customer", productController.SearchSKU)
 	g.POST("/create", productController.Create)
 	g.GET("/:id", productController.FindByID)
 	g.PUT("/:id", productController.Update)

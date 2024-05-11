@@ -6,20 +6,23 @@ import (
 	"EniQilo/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"gopkg.in/go-playground/validator.v9"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type staffController struct {
 	staffService services.StaffService
 	userService  services.UserService
+	validator    *validator.Validate
 }
 
 func NewStaffController(staffService services.StaffService, userService services.UserService) *staffController {
-	return &staffController{staffService, userService}
+	validate := validator.New()
+	return &staffController{staffService, userService, validate}
 }
 
 func (controller *staffController) Signup(c echo.Context) error {
@@ -68,13 +71,25 @@ func (controller *staffController) Signup(c echo.Context) error {
 		}
 	}
 
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(signupRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
+	}
+
 	if utils.ValidatePhoneStartsWithPlus(signupRequest.Phone) {
 		staff, err := controller.staffService.Create(signupRequest)
 		fmt.Println("id: ", staff.UserID.Id)
 		if err != nil {
 			if err.Error() == "Phone ALREADY EXIST" {
 
-				c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				c.JSON(http.StatusConflict, entities.ErrorResponse{
 					Status:  false,
 					Message: "Phone has been registered",
 				})
@@ -162,6 +177,18 @@ func (controller *staffController) SignIn(c echo.Context) error {
 		}
 	}
 
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(loginRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
+	}
+
 	if utils.ValidatePhoneStartsWithPlus(loginRequest.Phone) {
 
 		tokenString, err := controller.staffService.Login(loginRequest)
@@ -181,13 +208,13 @@ func (controller *staffController) SignIn(c echo.Context) error {
 
 		}
 		userId, _ := utils.GetUserIDFromJWT(tokenString)
-		staff, err := controller.staffService.FindByID(userId)
+		staff, _ := controller.staffService.FindByID(userId)
 		user, err := controller.userService.FindById(staff.UserID.Id)
 		fmt.Println("userid", userId)
 		fmt.Println("staff", staff)
 		fmt.Println("user", err)
-		c.JSON(http.StatusCreated, entities.SuccessResponse{
-			Message: "User registered successfully",
+		c.JSON(http.StatusOK, entities.SuccessResponse{
+			Message: "User login successfully",
 			Data: map[string]string{
 				"userId":      strconv.Itoa(user.Id), // ID should be a string
 				"phoneNumber": user.Phone,
