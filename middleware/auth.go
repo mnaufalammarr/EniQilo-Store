@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"EniQilo/entities"
+
 	"net/http"
 	"os"
 	"strings"
@@ -13,6 +14,7 @@ import (
 func RequireAuth() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
 
 			authHeader := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", -1)
 			if authHeader == "" {
@@ -30,6 +32,7 @@ func RequireAuth() echo.MiddlewareFunc {
 			// 	c.JSON(http.StatusUnauthorized, echo.Map{"error": "missing or malformed Authorization header"})
 			// 	return nil
 			// }
+
 			// Extract the token from the header
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 			// Parse the JWT token
