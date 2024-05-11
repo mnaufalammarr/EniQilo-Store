@@ -1,12 +1,15 @@
 package routes
 
 import (
-	v1 "EniQilo/routes/v1"
+	v1routes "EniQilo/routes/v1"
 	"EniQilo/utils"
+	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
 )
 
 type Route interface {
@@ -14,11 +17,11 @@ type Route interface {
 }
 
 type Routes struct {
-	db *pgxpool.Pool
+	Db *pgxpool.Pool
 }
 
-func New(db *pgxpool.Pool) *Routes {
-	return &Routes{db}
+func New(db *Routes) Route {
+	return db
 }
 
 func (r *Routes) Mount() {
@@ -35,6 +38,20 @@ func (r *Routes) Mount() {
 	}))
 
 	// Mount all routes here
-	baseRoute := e.Group("/v1")
-	v1.MountStaff(baseRoute, r.db)
+	basePath := "/v1"
+	baseUrl := e.Group(basePath)
+	baseUrl.GET("", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, fmt.Sprintf("API Base Code for %s", os.Getenv("ENVIRONMENT")))
+	})
+
+	v1 := v1routes.New(&v1routes.V1Routes{
+		Echo: e.Group(basePath),
+		DB:   r.Db,
+	})
+
+	v1.MountStaff()
+	v1.MountCustomer()
+	v1.MountProduct()
+
+	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -7,6 +7,11 @@ import (
 
 func main() {
 	dbPool := db.InitDB()
-	routes.New(dbPool)
+
+	r := routes.New(&routes.Routes{
+		Db: dbPool,
+	})
+
+	r.Mount()
 	db.ClosePool(dbPool)
 }
