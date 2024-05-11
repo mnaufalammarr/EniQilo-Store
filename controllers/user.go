@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
@@ -66,8 +67,7 @@ func (controller *userController) Create(c echo.Context) error {
 		}
 	}
 
-	if utils.ValidatePhoneStartsWithPlus(userRequest.Phone) {
-
+	if !utils.ValidatePhoneStartsWithPlus(userRequest.Phone) {
 		c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 			Status:  false,
 			Message: "Phone must be start with +",
@@ -75,35 +75,29 @@ func (controller *userController) Create(c echo.Context) error {
 		return nil
 	} else {
 		exist, err := controller.userService.FindByPhone(userRequest.Phone)
+		fmt.Println(exist)
+		fmt.Println(err)
 		if err != nil {
 			if err.Error() == "User not found" {
-				if exist.Role == false {
-					c.JSON(http.StatusConflict, entities.ErrorResponse{
+				user, err := controller.userService.Create(userRequest)
+				if err != nil {
+					c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 						Status:  false,
-						Message: "Phone has been registered",
+						Message: err.Error(),
 					})
 					return nil
-				} else {
-					user, err := controller.userService.Create(userRequest)
-					if err != nil {
-						c.JSON(http.StatusBadRequest, entities.ErrorResponse{
-							Status:  false,
-							Message: err.Error(),
-						})
-						return nil
-					}
-					userResponse := entities.UserResponse{
-						Id:    string(user.Id),
-						Name:  user.Name,
-						Phone: user.Phone,
-					}
-					c.JSON(http.StatusCreated, entities.SuccessResponse{
-						Message: "User registered successfully",
-						Data:    userResponse,
-					})
-					return nil
-
 				}
+				userResponse := entities.UserResponse{
+					Id:    strconv.Itoa(user.Id),
+					Name:  user.Name,
+					Phone: user.Phone,
+				}
+				c.JSON(http.StatusCreated, entities.SuccessResponse{
+					Message: "User registered successfully",
+					Data:    userResponse,
+				})
+				return nil
+
 			}
 			c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 				Status:  false,
@@ -111,6 +105,11 @@ func (controller *userController) Create(c echo.Context) error {
 			})
 			return nil
 		}
+		c.JSON(http.StatusConflict, entities.ErrorResponse{
+			Status:  false,
+			Message: "Phone number already registered",
+		})
+		return nil
 	}
 	return nil
 }

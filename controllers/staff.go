@@ -190,16 +190,16 @@ func (controller *staffController) SignIn(c echo.Context) error {
 	}
 
 	if utils.ValidatePhoneStartsWithPlus(loginRequest.Phone) {
-
 		tokenString, err := controller.staffService.Login(loginRequest)
 		if err != nil {
-			if err.Error() == "Invalid phone or password" {
-				c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			if err.Error() == "INVALID PHONE NUMBER OR PASSWORD" {
+				c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 					Status:  false,
-					Message: "Invalid phone or password",
+					Message: err.Error(),
 				})
 				return nil
 			}
+			fmt.Println("Error : %s", err)
 			c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
 				Status:  false,
 				Message: "Internal server error",

@@ -5,10 +5,11 @@ import (
 	"EniQilo/repositories"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type StaffService interface {
@@ -99,7 +100,7 @@ func (s *staffService) Login(loginRequest entities.SignInRequest) (string, error
 
 	if err != nil {
 		if staff.Id == 0 {
-			return "", errors.New("Invalid phone or password")
+			return "", errors.New("INVALID PHONE NUMBER OR PASSWORD")
 		}
 		fmt.Println("error", err)
 		return "", err
@@ -109,9 +110,8 @@ func (s *staffService) Login(loginRequest entities.SignInRequest) (string, error
 	//compare password
 	err = bcrypt.CompareHashAndPassword([]byte(staff.Password), []byte(loginRequest.Password))
 
-	//fmt.Println("errlogin", err.Error())
 	if err != nil {
-		return "", err
+		return "", errors.New("INVALID PHONE NUMBER OR PASSWORD")
 	}
 
 	//sign token
