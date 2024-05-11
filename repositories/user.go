@@ -122,7 +122,7 @@ func (r *userRepository) FindAll(filterParams map[string]interface{}) ([]entitie
 		num++
 	}
 
-	if phone, ok := filterParams["phone"].(string); ok && phone != "" {
+	if phone, ok := filterParams["phoneNumber"].(string); ok && phone != "" {
 		query += " AND phone_number ILIKE '$" + strconv.Itoa(num) + "%%'"
 		args = append(args, phone)
 		num++

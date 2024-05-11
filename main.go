@@ -13,5 +13,5 @@ func main() {
 	})
 
 	r.Mount()
-	//db.ClosePool(dbPool)
+	db.ClosePool(dbPool)
 }

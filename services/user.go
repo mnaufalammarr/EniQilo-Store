@@ -40,7 +40,6 @@ func (s *userService) FindById(id int) (entities.User, error) {
 		return entities.User{}, err
 	}
 
-	// Jika kucing tidak ditemukan, kembalikan error
 	if user.Id == 0 {
 		return entities.User{}, errors.New("User not found")
 	}
