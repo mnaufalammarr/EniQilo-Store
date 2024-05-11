@@ -1,33 +1,35 @@
 package middleware
 
 import (
-	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo/v4"
+	"EniQilo/entities"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo/v4"
 )
 
 func RequireAuth() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if c != nil {
-				return next(c)
-			}
 
-			authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
+			authHeader := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", -1)
 			if authHeader == "" {
-				return echo.NewHTTPError(http.StatusUnauthorized, "Missing authorization header")
+				return c.JSON(http.StatusUnauthorized, entities.ErrorResponse{
+					Status:  false,
+					Message: "Unauthorized",
+				})
 			}
 
-			parts := strings.SplitN(authHeader, " ", 2)
-			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid authorization format")
-			}
-			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-				c.JSON(http.StatusUnauthorized, echo.Map{"error": "missing or malformed Authorization header"})
-				return nil
-			}
+			// parts := strings.SplitN(authHeader, " ", 2)
+			// if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+			// 	return echo.NewHTTPError(http.StatusUnauthorized, "Invalid authorization format")
+			// }
+			// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			// 	c.JSON(http.StatusUnauthorized, echo.Map{"error": "missing or malformed Authorization header"})
+			// 	return nil
+			// }
 			// Extract the token from the header
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 			// Parse the JWT token

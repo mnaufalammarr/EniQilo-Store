@@ -14,7 +14,7 @@ type UserRequest struct {
 }
 
 type UserResponse struct {
-	Id    string `json:"id"`
+	Id    string `json:"userId"`
 	Name  string `json:"name" validate:"required,min=5,max=50"`
 	Phone string `json:"phoneNumber" validate:"required,min=5,max=15"`
 	//Role  string `json:"role" validate:"required,min=5,max=15"`

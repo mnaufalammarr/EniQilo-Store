@@ -87,6 +87,8 @@ func (r *productRepository) FindAll(params entities.ProductQueryParams, isCust b
 
 	if len(orderBy) > 0 {
 		query += " ORDER BY " + strings.Join(orderBy, ", ")
+	} else {
+		query += " ORDER BY created_at DESC"
 	}
 
 	// Apply limit and offset
