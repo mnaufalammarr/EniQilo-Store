@@ -4,7 +4,7 @@ CREATE TABLE products (
                           sku VARCHAR(255) NOT NULL,
                           category VARCHAR(255),
                           image_url VARCHAR(255),
-                          note VARCHAR(255),
+                          notes VARCHAR(255),
                           price INTEGER NOT NULL,
                           stock INTEGER NOT NULL,
                           location VARCHAR(255),

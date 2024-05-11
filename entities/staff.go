@@ -12,12 +12,12 @@ type StaffRequast struct {
 }
 
 type SignUpRequest struct {
-	Phone    string `json:"phone"`
+	Phone    string `json:"phoneNumber"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
 type SignInRequest struct {
-	Phone    string `json:"phone"`
+	Phone    string `json:"phoneNumber"`
 	Password string `json:"password"`
 }
