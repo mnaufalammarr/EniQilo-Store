@@ -11,7 +11,7 @@ import (
 )
 
 type ProductRepository interface {
-	FindAll(params entities.ProductQueryParams) ([]entities.Product, error)
+	FindAll(params entities.ProductQueryParams, isCust bool) (interface{}, error)
 	Create(product entities.ProductRequest) (entities.ProductResponse, error)
 	FindByID(id string) (entities.Product, error)
 	Update(id string, product entities.ProductRequest) error
@@ -26,8 +26,12 @@ func NewProductRepository(db *pgxpool.Pool) *productRepository {
 	return &productRepository{db}
 }
 
-func (r *productRepository) FindAll(params entities.ProductQueryParams) ([]entities.Product, error) {
-	query := "SELECT id, name, sku, category, image_url, note, price, stock, location, is_available, created_at, updated_at FROM products"
+func (r *productRepository) FindAll(params entities.ProductQueryParams, isCust bool) (interface{}, error) {
+	var query string = "SELECT id, name, sku, category, image_url, notes, price, stock, location, is_available, created_at, updated_at FROM products"
+
+	if isCust {
+		query = "SELECT id, name, sku, category, image_url, price, stock, location, created_at FROM products"
+	}
 
 	conditions := ""
 	args := make([]interface{}, 0)
@@ -97,10 +101,24 @@ func (r *productRepository) FindAll(params entities.ProductQueryParams) ([]entit
 	}
 	defer rows.Close()
 
+	if isCust {
+		var products []entities.SearchSKUResponse
+		for rows.Next() {
+			var product entities.SearchSKUResponse
+			err := rows.Scan(&product.ID, &product.Name, &product.SKU, &product.Category, &product.ImageUrl, &product.Price, &product.Stock, &product.Location, &product.CreatedAt)
+			if err != nil {
+				return nil, err
+			}
+			products = append(products, product)
+		}
+
+		return products, nil
+	}
+
 	var products []entities.Product
 	for rows.Next() {
 		var product entities.Product
-		err := rows.Scan(&product.ID, &product.Name, &product.SKU, &product.Category, &product.ImageUrl, &product.Note, &product.Price, &product.Stock, &product.Location, &product.IsAvailable, &product.CreatedAt, &product.UpdatedAt)
+		err := rows.Scan(&product.ID, &product.Name, &product.SKU, &product.Category, &product.ImageUrl, &product.Notes, &product.Price, &product.Stock, &product.Location, &product.IsAvailable, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -114,8 +132,8 @@ func (r *productRepository) Create(product entities.ProductRequest) (entities.Pr
 	var productResponse entities.ProductResponse
 
 	// Execute the INSERT statement
-	err := r.db.QueryRow(context.Background(), "INSERT INTO products (name, sku, category, image_url, note, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at;",
-		product.Name, product.SKU, product.Category, product.ImageUrl, product.Note, product.Price, product.Stock, product.Location, product.IsAvailable).Scan(&productResponse.ID, &productResponse.CreatedAt)
+	err := r.db.QueryRow(context.Background(), "INSERT INTO products (name, sku, category, image_url, notes, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at;",
+		product.Name, product.SKU, product.Category, product.ImageUrl, product.Notes, product.Price, product.Stock, product.Location, product.IsAvailable).Scan(&productResponse.ID, &productResponse.CreatedAt)
 	if err != nil {
 		return entities.ProductResponse{}, err
 	}
@@ -126,8 +144,8 @@ func (r *productRepository) Create(product entities.ProductRequest) (entities.Pr
 func (r *productRepository) FindByID(id string) (entities.Product, error) {
 	var product entities.Product
 
-	err := r.db.QueryRow(context.Background(), "SELECT id, name, sku, category, image_url, note, price, stock, location, is_available, created_at, updated_at FROM products WHERE id = $1", id).
-		Scan(&product.ID, &product.Name, &product.SKU, &product.Category, &product.ImageUrl, &product.Note, &product.Price, &product.Stock, &product.Location, &product.IsAvailable, &product.CreatedAt, &product.UpdatedAt)
+	err := r.db.QueryRow(context.Background(), "SELECT id, name, sku, category, image_url, notes, price, stock, location, is_available, created_at, updated_at FROM products WHERE id = $1", id).
+		Scan(&product.ID, &product.Name, &product.SKU, &product.Category, &product.ImageUrl, &product.Notes, &product.Price, &product.Stock, &product.Location, &product.IsAvailable, &product.CreatedAt, &product.UpdatedAt)
 
 	if err != nil {
 		return entities.Product{}, err
@@ -137,8 +155,8 @@ func (r *productRepository) FindByID(id string) (entities.Product, error) {
 }
 
 func (r *productRepository) Update(id string, product entities.ProductRequest) error {
-	_, err := r.db.Exec(context.Background(), "UPDATE products SET name = $1, sku = $2, category = $3, image_url = $4, note = $5, price = $6, stock = $7, location = $8, is_available = $9, updated_at = CURRENT_TIMESTAMP WHERE id = $10",
-		product.Name, product.SKU, product.Category, product.ImageUrl, product.Note, product.Price, product.Stock, product.Location, product.IsAvailable, id)
+	_, err := r.db.Exec(context.Background(), "UPDATE products SET name = $1, sku = $2, category = $3, image_url = $4, notes = $5, price = $6, stock = $7, location = $8, is_available = $9, updated_at = CURRENT_TIMESTAMP WHERE id = $10",
+		product.Name, product.SKU, product.Category, product.ImageUrl, product.Notes, product.Price, product.Stock, product.Location, product.IsAvailable, id)
 	if err != nil {
 		return err
 	}

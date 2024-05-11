@@ -6,11 +6,12 @@ import (
 	"EniQilo/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"gopkg.in/go-playground/validator.v9"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type staffController struct {
@@ -181,7 +182,7 @@ func (controller *staffController) SignIn(c echo.Context) error {
 
 		}
 		userId, _ := utils.GetUserIDFromJWT(tokenString)
-		staff, err := controller.staffService.FindByID(userId)
+		staff, _ := controller.staffService.FindByID(userId)
 		user, err := controller.userService.FindById(staff.UserID.Id)
 		fmt.Println("userid", userId)
 		fmt.Println("staff", staff)

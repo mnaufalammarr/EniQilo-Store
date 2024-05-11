@@ -4,11 +4,12 @@ import (
 	v1routes "EniQilo/routes/v1"
 	"EniQilo/utils"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"os"
 )
 
 type Route interface {
