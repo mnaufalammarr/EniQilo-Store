@@ -19,3 +19,11 @@ type UserResponse struct {
 	Phone string `json:"phoneNumber" validate:"required,min=5,max=15"`
 	//Role  string `json:"role" validate:"required,min=5,max=15"`
 }
+
+type UserQueryParams struct {
+	ID          string
+	Name        string
+	PhoneNumber string
+	Limit       int
+	Offset      int
+}

@@ -10,7 +10,7 @@ import (
 type UserService interface {
 	Create(signupRequest entities.UserRequest) (entities.User, error)
 	FindById(id int) (entities.User, error)
-	FindAll(filterParams map[string]interface{}) ([]entities.UserResponse, error)
+	FindAll(filterParams entities.UserQueryParams) ([]entities.UserResponse, error)
 	FindByPhone(phone string) (entities.User, error)
 }
 
@@ -61,9 +61,9 @@ func (s *userService) FindByPhone(phone string) (entities.User, error) {
 	return user, nil
 }
 
-func (s *userService) FindAll(filterParams map[string]interface{}) ([]entities.UserResponse, error) {
+func (s *userService) FindAll(filterParams entities.UserQueryParams) ([]entities.UserResponse, error) {
 	fmt.Println(filterParams)
-	users, err := s.userRepository.FindAll(filterParams)
+	users, err := s.userRepository.FindAll(filterParams, false)
 	if err != nil {
 		return nil, err
 	}

@@ -15,4 +15,5 @@ func (i *V1Routes) MountCustomer() {
 	userController := controllers.NewUserController(userService)
 
 	g.POST("/register", userController.Create)
+	g.GET("", userController.GetAll)
 }
