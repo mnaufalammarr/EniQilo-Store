@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -11,18 +12,22 @@ import (
 func RequireAuth() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if c != nil {
-				return next(c)
-			}
+			//if c != nil {
+			//	return next(c)
+			//}
 
 			authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
+			fmt.Println("authHeader", authHeader)
 			if authHeader == "" {
-				return echo.NewHTTPError(http.StatusUnauthorized, "Missing authorization header")
+				fmt.Println("masuk")
+				c.JSON(http.StatusUnauthorized, echo.Map{"error": "missing Authorization header"})
+				return nil
 			}
 
 			parts := strings.SplitN(authHeader, " ", 2)
 			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid authorization format")
+				c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid Authorization Format"})
+				return nil
 			}
 			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 				c.JSON(http.StatusUnauthorized, echo.Map{"error": "missing or malformed Authorization header"})
