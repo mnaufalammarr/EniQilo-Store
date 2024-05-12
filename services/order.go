@@ -11,6 +11,7 @@ import (
 
 type OrderService interface {
 	Create(orderRequest entities.OrderRequest, cashierId int) (string, error)
+	FindHistory(params entities.HistoryParamsRequest) ([]entities.HistoryResponse, error)
 }
 
 type orderService struct {
@@ -37,4 +38,8 @@ func (s *orderService) Create(orderRequest entities.OrderRequest, cashierId int)
 	fmt.Println("newOrderErr", err)
 
 	return orderId, err
+}
+
+func (s *orderService) FindHistory(params entities.HistoryParamsRequest) ([]entities.HistoryResponse, error) {
+	return s.orderRepository.FindHistory(params)
 }

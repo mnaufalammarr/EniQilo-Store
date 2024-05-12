@@ -16,14 +16,23 @@ type OrderRequest struct {
 	Change         int            `json:"change" validate:"required,min=0"`
 }
 
-type History struct {
-	TransactionId  string `json:"transactionId"`
-	CustomerId     string `json:"customerId"`
-	ProductDetails []struct {
-		ProductId string `json:"productId"`
-		Quantity  int    `json:"quantity"`
-	} `json:"productDetails"`
-	Paid      int    `json:"paid"`
-	Change    int    `json:"change"`
-	CreatedAt string `json:"createdAt"`
+type HistoryResponse struct {
+	TransactionId  string         `json:"transactionId"`
+	CustomerId     string         `json:"customerId"`
+	ProductDetails ProductDetails `json:"productDetails"`
+	Paid           int            `json:"paid"`
+	Change         int            `json:"change"`
+	CreatedAt      string         `json:"createdAt"`
+}
+
+type ProductDetails struct {
+	ProductId string `json:"productId"`
+	Quantity  int    `json:"quantity"`
+}
+
+type HistoryParamsRequest struct {
+	CustomerId string `json:"customerId"`
+	Limit      int    `json:"limit"`
+	Offset     int    `json:"offset"`
+	CreatedAt  string `json:"createdAt"`
 }

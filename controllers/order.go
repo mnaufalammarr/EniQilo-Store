@@ -6,6 +6,8 @@ import (
 	"EniQilo/utils"
 	"fmt"
 	"net/http"
+	"reflect"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -81,4 +83,79 @@ func (controller *OrderController) Create(c echo.Context) error {
 		},
 	)
 	return nil
+}
+
+func (controller *OrderController) FindHistory(c echo.Context) error {
+	params := entities.HistoryParamsRequest{}
+
+	limitStr := c.QueryParam("limit")
+	if limitStr != "" {
+		limit, err := strconv.Atoi(limitStr)
+		if err == nil && limit > 0 {
+			params.Limit = limit
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid limit parameter",
+			})
+		}
+	} else {
+		params.Limit = 5
+	}
+
+	offsetStr := c.QueryParam("offset")
+	if offsetStr != "" {
+		offset, err := strconv.Atoi(offsetStr)
+		if err == nil && offset >= 0 {
+			params.Offset = offset
+		} else {
+			return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+				Status:  false,
+				Message: "Invalid offset parameter",
+			})
+		}
+	} else {
+		params.Offset = 0
+	}
+	if id := c.QueryParam("customerId"); id != "" {
+		params.CustomerId = id
+	}
+	if createdAt := c.QueryParam("createdAt"); createdAt != "" {
+		if createdAt != "asc" && createdAt != "desc" {
+			// return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			// 	Status:  false,
+			// 	Message: "Invalid createdAt parameter",
+			// })
+			// params.CreatedAt = createdAt
+		} else {
+			params.CreatedAt = createdAt
+		}
+	}
+	// Call service to find products
+	Histories, err := controller.orderService.FindHistory(params)
+	if err != nil {
+		// fmt.Println("ERROR: %s", err)
+		// if err.Error() == "PRODUCTID IS NOT FOUND" {
+		// 	return c.JSON(http.StatusNotFound, entities.ErrorResponse{
+		// 		Status:  false,
+		// 		Message: "Product is not found",
+		// 	})
+		// }
+		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
+			Status:  false,
+			Message: "Failed to fetch Histories",
+		})
+	}
+
+	if Histories == nil || reflect.ValueOf(Histories).IsNil() {
+		return c.JSON(http.StatusOK, entities.SuccessResponse{
+			Message: "success",
+			Data:    []entities.HistoryResponse{},
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.SuccessResponse{
+		Message: "success",
+		Data:    Histories,
+	})
 }
