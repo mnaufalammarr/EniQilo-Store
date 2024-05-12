@@ -75,8 +75,18 @@ func (r *orderRepository) Create(order entities.Order) (string, error) {
 		}
 	}
 
+	fmt.Println("CHANGE")
+	fmt.Println(*order.Change)
+
 	if order.Paid < totalAmount {
 		return "", fmt.Errorf("CUSTOMER PAID IS NOT ENOUGH")
+	}
+	fmt.Println("CHANGE")
+	fmt.Println(*order.Change)
+	fmt.Println(*order.Change == (order.Paid - totalAmount))
+	fmt.Println(order.Paid - totalAmount)
+	if !(*order.Change == (order.Paid - totalAmount)) {
+		return "", fmt.Errorf("CHANGE IS NOT RIGHT")
 	}
 
 	if erro := tx.Commit(context.Background()); erro != nil {

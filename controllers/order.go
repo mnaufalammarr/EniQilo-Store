@@ -76,6 +76,17 @@ func (controller *OrderController) Create(c echo.Context) error {
 			return nil
 		}
 
+		if err.Error() == "CHANGE IS NOT RIGHT" {
+			c.JSON(
+				http.StatusBadRequest,
+				entities.ErrorResponse{
+					Status:  false,
+					Message: err.Error(),
+				},
+			)
+			return nil
+		}
+
 		if err.Error() == "NO SUCH PRODUCT SELECTED" {
 			c.JSON(
 				http.StatusNotFound,
