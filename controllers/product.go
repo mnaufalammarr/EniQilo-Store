@@ -360,6 +360,14 @@ func (controller *productController) Update(c echo.Context) error {
 		})
 	}
 
+	if !utils.ValidateUrl(productRequest.ImageUrl) {
+		c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: "Email tidak valid",
+		})
+		return nil
+	}
+
 	// Validasi input menggunakan validator
 	if err := controller.validator.Struct(productRequest); err != nil {
 		var validationErrors []string
