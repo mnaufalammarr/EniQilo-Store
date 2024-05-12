@@ -3,12 +3,12 @@ package controllers
 import (
 	"EniQilo/entities"
 	"EniQilo/services"
+	"EniQilo/utils"
 	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -273,11 +273,19 @@ func (controller *productController) Create(c echo.Context) error {
 		})
 	}
 
-	if !govalidator.IsURL(productRequest.ImageUrl) {
-		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+	// if !govalidator.IsURL(productRequest.ImageUrl) {
+	// 	return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+	// 		Status:  false,
+	// 		Message: "Invalid url",
+	// 	})
+	// }
+
+	if !utils.ValidateUrl(productRequest.ImageUrl) {
+		c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 			Status:  false,
-			Message: "Invalid url",
+			Message: "Email tidak valid",
 		})
+		return nil
 	}
 
 	// Validasi input menggunakan validator

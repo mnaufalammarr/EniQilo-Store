@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -133,10 +134,10 @@ func (r *productRepository) FindAll(params entities.ProductQueryParams, isCust b
 
 func (r *productRepository) Create(product entities.ProductRequest) (entities.ProductResponse, error) {
 	var productResponse entities.ProductResponse
-
+	productId := strconv.Itoa(uuid.New().ClockSequence())
 	// Execute the INSERT statement
-	err := r.db.QueryRow(context.Background(), "INSERT INTO products (name, sku, category, image_url, notes, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, created_at;",
-		product.Name, product.SKU, product.Category, product.ImageUrl, product.Notes, product.Price, product.Stock, product.Location, product.IsAvailable).Scan(&productResponse.ID, &productResponse.CreatedAt)
+	err := r.db.QueryRow(context.Background(), "INSERT INTO products (id, name, sku, category, image_url, notes, price, stock, location, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, created_at;",
+		productId, product.Name, product.SKU, product.Category, product.ImageUrl, product.Notes, product.Price, product.Stock, product.Location, product.IsAvailable).Scan(&productResponse.ID, &productResponse.CreatedAt)
 	if err != nil {
 		return entities.ProductResponse{}, err
 	}

@@ -1,6 +1,6 @@
 CREATE TABLE order_details (
     id SERIAL PRIMARY KEY,
-    product_id int NOT NULL,
+    product_id VARCHAR NOT NULL,
     order_id VARCHAR NOT NULL,
     quantity INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
