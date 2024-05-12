@@ -35,17 +35,17 @@ func (controller *OrderController) Create(c echo.Context) error {
 		})
 	}
 
-	// // Validasi input menggunakan validator
-	// if err := controller.validator.Struct(orderRequest); err != nil {
-	// 	var validationErrors []string
-	// 	for _, err := range err.(validator.ValidationErrors) {
-	// 		validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
-	// 	}
-	// 	return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
-	// 		Status:  false,
-	// 		Message: validationErrors,
-	// 	})
-	// }
+	// Validasi input menggunakan validator
+	if err := controller.validator.Struct(orderRequest); err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: validationErrors,
+		})
+	}
 
 	for _, element := range orderRequest.ProductDetails {
 		if err := controller.validator.Struct(element); err != nil {
@@ -60,9 +60,30 @@ func (controller *OrderController) Create(c echo.Context) error {
 		}
 	}
 
-	order, err := controller.orderService.Create(orderRequest, userID)
+	_, err := controller.orderService.Create(orderRequest, userID)
 
 	if err != nil {
+		if err.Error() == "CUSTOMER PAID IS NOT ENOUGH" {
+			c.JSON(
+				http.StatusBadRequest,
+				entities.ErrorResponse{
+					Status:  false,
+					Message: err.Error(),
+				},
+			)
+			return nil
+		}
+
+		if err.Error() == "NO SUCH PRODUCT SELECTED" {
+			c.JSON(
+				http.StatusNotFound,
+				entities.ErrorResponse{
+					Status:  false,
+					Message: err.Error(),
+				},
+			)
+			return nil
+		}
 		c.JSON(
 			http.StatusBadRequest,
 			entities.ErrorResponse{
@@ -74,10 +95,10 @@ func (controller *OrderController) Create(c echo.Context) error {
 	}
 
 	c.JSON(
-		http.StatusCreated,
+		http.StatusOK,
 		entities.SuccessResponse{
 			Message: "success",
-			Data:    order,
+			Data:    "ORDERAN MASUK",
 		},
 	)
 	return nil

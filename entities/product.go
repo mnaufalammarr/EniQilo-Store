@@ -15,7 +15,7 @@ type Product struct {
 	ImageUrl    string   `json:"imageUrl" validate:"required"`
 	Notes       string   `json:"notes" validate:"required"`
 	Price       int      `json:"price" validate:"required"`
-	Stock       int      `json:"stock" validate:"required"`
+	Stock       *int     `json:"stock" validate:"required"`
 	Location    string   `json:"location" validate:"required"`
 	IsAvailable bool     `json:"isAvailable" validate:"required"`
 	BaseModel
@@ -37,7 +37,7 @@ type ProductRequest struct {
 	ImageUrl    string   `json:"imageUrl" validate:"required,url"`
 	Notes       string   `json:"notes" validate:"required,min=1,max=200"`
 	Price       int      `json:"price" validate:"required,min=1"`
-	Stock       int      `json:"stock" validate:"required,min=0,max=100000"`
+	Stock       *int     `json:"stock" validate:"required,min=0,max=100000"`
 	Location    string   `json:"location" validate:"required,min=1,max=200"`
 	IsAvailable *bool    `json:"isAvailable" validate:"required"`
 }
@@ -55,7 +55,7 @@ func (pr *ProductRequest) ValidCategory(fl validator.FieldLevel) bool {
 }
 
 type ProductResponse struct {
-	ID        int       `json:"id"`
+	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
