@@ -1,8 +1,10 @@
-CREATE TABLE product_details (
+CREATE TABLE order_details (
+    id SERIAL PRIMARY KEY,
     product_id int NOT NULL,
-    checkout_id int NOT NULL,
+    order_id VARCHAR NOT NULL,
     quantity INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (checkout_id) REFERENCES orders(id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
