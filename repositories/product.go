@@ -98,6 +98,7 @@ func (r *productRepository) FindAll(params entities.ProductQueryParams, isCust b
 	fmt.Println(query)
 	fmt.Println(args...)
 	fmt.Println(err)
+	fmt.Println(rows)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,8 @@ import (
 	"EniQilo/services"
 	"fmt"
 	"net/http"
+	"net/url"
+	"reflect"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -123,13 +125,20 @@ func (controller *productController) FindAll(c echo.Context) error {
 	// Call service to find products
 	products, err := controller.productService.FindAll(params, false)
 	if err != nil {
+		// fmt.Println("ERROR: %s", err)
+		// if err.Error() == "PRODUCTID IS NOT FOUND" {
+		// 	return c.JSON(http.StatusNotFound, entities.ErrorResponse{
+		// 		Status:  false,
+		// 		Message: "Product is not found",
+		// 	})
+		// }
 		return c.JSON(http.StatusInternalServerError, entities.ErrorResponse{
 			Status:  false,
 			Message: "Failed to fetch products",
 		})
 	}
 
-	if products == nil {
+	if products == nil || reflect.ValueOf(products).IsNil() {
 		return c.JSON(http.StatusOK, entities.SuccessResponse{
 			Message: "success",
 			Data:    []entities.Product{},
@@ -261,6 +270,15 @@ func (controller *productController) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 			Status:  false,
 			Message: "Invalid request body",
+		})
+	}
+
+	fmt.Println("URL")
+	fmt.Println(url.ParseRequestURI(productRequest.ImageUrl))
+	if _, err := url.ParseRequestURI(productRequest.ImageUrl); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
+			Status:  false,
+			Message: "Invalid url",
 		})
 	}
 
