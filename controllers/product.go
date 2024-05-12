@@ -5,10 +5,10 @@ import (
 	"EniQilo/services"
 	"fmt"
 	"net/http"
-	"net/url"
 	"reflect"
 	"strconv"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -273,9 +273,7 @@ func (controller *productController) Create(c echo.Context) error {
 		})
 	}
 
-	fmt.Println("URL")
-	fmt.Println(url.ParseRequestURI(productRequest.ImageUrl))
-	if _, err := url.ParseRequestURI(productRequest.ImageUrl); err != nil {
+	if !govalidator.IsURL(productRequest.ImageUrl) {
 		return c.JSON(http.StatusBadRequest, entities.ErrorResponse{
 			Status:  false,
 			Message: "Invalid url",
