@@ -154,6 +154,9 @@ func (controller *OrderController) FindHistory(c echo.Context) error {
 	}
 	// Call service to find products
 	Histories, err := controller.orderService.FindHistory(params)
+	fmt.Println("GET HISOTRY ")
+	fmt.Println(Histories)
+	fmt.Println(err)
 	if err != nil {
 		// fmt.Println("ERROR: %s", err)
 		// if err.Error() == "PRODUCTID IS NOT FOUND" {

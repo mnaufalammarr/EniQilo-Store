@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type Order struct {
 	Id             string         `json:"id"`
 	Paid           int            `json:"paid" validate:"required"`
@@ -22,7 +24,7 @@ type HistoryResponse struct {
 	ProductDetails ProductDetails `json:"productDetails"`
 	Paid           int            `json:"paid"`
 	Change         int            `json:"change"`
-	CreatedAt      string         `json:"createdAt"`
+	CreatedAt      time.Time      `json:"createdAt"`
 }
 
 type ProductDetails struct {
